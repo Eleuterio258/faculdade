@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(java:*)",
+      "Bash(export JAVA_HOME=\"/c/Program Files/OpenJDK/jdk-21\":*)"
+    ]
+  }
+}
