@@ -1,5 +1,6 @@
 package com.construction.gestao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,6 +42,7 @@ public class Documento {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
+    @JsonIgnore
     private Obra obra;
 
     @ManyToOne(fetch = FetchType.LAZY)

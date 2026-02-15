@@ -175,6 +175,16 @@ const Obras = () => {
                     />
                   </div>
                   <div className="mb-3">
+                    <label className="form-label">Endereço *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      required
+                      value={formData.endereco}
+                      onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                    />
+                  </div>
+                  <div className="mb-3">
                     <label className="form-label">Localização *</label>
                     <input
                       type="text"

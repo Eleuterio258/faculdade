@@ -1,5 +1,6 @@
 package com.construction.gestao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -62,24 +63,31 @@ public class Obra {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnoreProperties({"obras", "password"})
     private Usuario usuario;
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
     private List<Cronograma> cronogramas = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
     private List<DiarioObra> diarios = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
     private List<Material> materiais = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
     private List<Custo> custos = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
     private List<Equipa> equipas = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
     private List<Documento> documentos = new ArrayList<>();
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

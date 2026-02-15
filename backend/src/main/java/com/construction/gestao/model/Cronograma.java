@@ -1,5 +1,6 @@
 package com.construction.gestao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,9 +34,11 @@ public class Cronograma {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
+    @JsonIgnore
     private Obra obra;
 
     @OneToMany(mappedBy = "cronograma", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Atividade> atividades = new ArrayList<>();
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

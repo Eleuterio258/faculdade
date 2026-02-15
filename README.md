@@ -129,7 +129,7 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-O backend estará disponível em `http://localhost:8080`
+O backend estará disponível em `http://localhost:2025`
 
 ### Frontend
 

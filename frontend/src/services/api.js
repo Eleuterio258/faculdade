@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // URL base da API:
-// - Em desenvolvimento, pode ficar vazia e usar o proxy do Vite (`/api` -> http://localhost:8080)
+// - Em desenvolvimento, pode ficar vazia e usar o proxy do Vite (`/api` -> http://localhost:2025)
 // - Em produção, defina VITE_API_URL (por ex.: https://meu-backend.com)
 const baseURL = import.meta.env.VITE_API_URL || ''
 
