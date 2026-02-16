@@ -11,6 +11,10 @@ import Materiais from './pages/Materiais'
 import Custos from './pages/Custos'
 import DiariosObra from './pages/DiariosObra'
 import Equipas from './pages/Equipas'
+import Ocorrencias from './pages/Ocorrencias'
+import Fornecedores from './pages/Fornecedores'
+import Documentos from './pages/Documentos'
+import Relatorios from './pages/Relatorios'
 import Layout from './components/Layout'
 
 function App() {
@@ -100,6 +104,46 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/ocorrencias"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Ocorrencias />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/fornecedores"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Fornecedores />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/documentos"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Documentos />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/relatorios"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Relatorios />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
@@ -107,4 +151,3 @@ function App() {
 }
 
 export default App
-

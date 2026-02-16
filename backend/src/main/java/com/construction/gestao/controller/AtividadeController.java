@@ -4,7 +4,6 @@ import com.construction.gestao.model.Atividade;
 import com.construction.gestao.service.AtividadeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -31,7 +30,7 @@ public class AtividadeController {
     }
 
     @PostMapping("/cronograma/{cronogramaId}")
-    @PreAuthorize("hasAnyRole('ENGENHEIRO','TECNICO_OBRA')")
+
     public ResponseEntity<Atividade> createAtividade(@PathVariable Long cronogramaId,
                                                       @Valid @RequestBody Atividade atividade) {
         Atividade createdAtividade = atividadeService.createAtividade(atividade, cronogramaId);
@@ -39,7 +38,7 @@ public class AtividadeController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ENGENHEIRO','TECNICO_OBRA')")
+
     public ResponseEntity<Atividade> updateAtividade(@PathVariable Long id,
                                                       @Valid @RequestBody Atividade atividadeDetails) {
         Atividade updatedAtividade = atividadeService.updateAtividade(id, atividadeDetails);
@@ -47,7 +46,7 @@ public class AtividadeController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ENGENHEIRO','TECNICO_OBRA')")
+
     public ResponseEntity<?> deleteAtividade(@PathVariable Long id) {
         atividadeService.deleteAtividade(id);
         return ResponseEntity.ok().build();

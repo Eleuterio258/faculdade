@@ -90,6 +90,14 @@ public class Obra {
     @JsonIgnoreProperties("obra")
     private List<Documento> documentos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
+    private List<Ocorrencia> ocorrencias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obra")
+    private List<Fornecedor> fornecedores = new ArrayList<>();
+
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 

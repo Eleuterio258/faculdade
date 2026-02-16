@@ -5,7 +5,6 @@ import com.construction.gestao.security.UserPrincipal;
 import com.construction.gestao.service.ObraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +32,7 @@ public class ObraController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('EMPREITEIRO','ENGENHEIRO')")
+
     public ResponseEntity<Obra> createObra(@Valid @RequestBody Obra obra,
                                             @AuthenticationPrincipal UserPrincipal currentUser) {
         Obra createdObra = obraService.createObra(obra, currentUser.getId());
@@ -41,7 +40,7 @@ public class ObraController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EMPREITEIRO','ENGENHEIRO')")
+
     public ResponseEntity<Obra> updateObra(@PathVariable Long id,
                                             @Valid @RequestBody Obra obraDetails) {
         Obra updatedObra = obraService.updateObra(id, obraDetails);
@@ -49,7 +48,7 @@ public class ObraController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EMPREITEIRO','ENGENHEIRO')")
+
     public ResponseEntity<?> deleteObra(@PathVariable Long id) {
         obraService.deleteObra(id);
         return ResponseEntity.ok().build();
