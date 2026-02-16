@@ -1,5 +1,6 @@
 package com.construction.gestao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -67,35 +68,35 @@ public class Obra {
     private Usuario usuario;
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<Cronograma> cronogramas = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<DiarioObra> diarios = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<Material> materiais = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<Custo> custos = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<Equipa> equipas = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<Documento> documentos = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<Ocorrencia> ocorrencias = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("obra")
+    @JsonIgnore
     private List<Fornecedor> fornecedores = new ArrayList<>();
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

@@ -8,6 +8,7 @@ const ObraDetail = () => {
   const [obra, setObra] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({})
 
   useEffect(() => {
@@ -15,12 +16,15 @@ const ObraDetail = () => {
   }, [id])
 
   const fetchObra = async () => {
+    setLoading(true)
+    setError('')
     try {
       const response = await api.get(`/api/obras/${id}`)
       setObra(response.data)
-      setLoading(false)
-    } catch (error) {
-      console.error('Erro ao carregar obra:', error)
+    } catch (err) {
+      console.error('Erro ao carregar obra:', err)
+      setError(err.response?.data?.message || 'Erro ao carregar obra. Verifique se a obra existe.')
+    } finally {
       setLoading(false)
     }
   }
@@ -97,8 +101,8 @@ const ObraDetail = () => {
   if (!obra) {
     return (
       <div className="text-center py-5">
-        <i className="fa-solid fa-triangle-exclamation fa-2x text-muted mb-3"></i>
-        <p className="text-muted">Obra não encontrada.</p>
+        <i className="fa-solid fa-triangle-exclamation fa-2x text-muted mb-3 d-block"></i>
+        <p className="text-muted">{error || 'Obra não encontrada.'}</p>
         <Link to="/obras" className="btn btn-primary mt-2">Voltar às Obras</Link>
       </div>
     )

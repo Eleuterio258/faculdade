@@ -37,7 +37,6 @@ public class Fornecedor {
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore

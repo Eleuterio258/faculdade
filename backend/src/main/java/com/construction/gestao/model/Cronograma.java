@@ -31,7 +31,6 @@ public class Cronograma {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore

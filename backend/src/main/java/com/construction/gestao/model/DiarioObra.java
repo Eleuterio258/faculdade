@@ -22,7 +22,6 @@ public class DiarioObra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore
@@ -49,6 +48,7 @@ public class DiarioObra {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
+    @JsonIgnore
     private Usuario responsavel;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

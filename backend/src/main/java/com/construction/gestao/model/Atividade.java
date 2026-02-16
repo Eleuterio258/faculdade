@@ -28,7 +28,6 @@ public class Atividade {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cronograma_id", nullable = false)
     private Cronograma cronograma;

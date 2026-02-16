@@ -48,7 +48,6 @@ public class Ocorrencia {
     @Column(columnDefinition = "TEXT")
     private String resolucao;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore

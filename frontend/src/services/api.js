@@ -31,12 +31,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token inválido ou expirado
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      // Redirecionar para login se não estiver na página de login
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
+      // Só limpar token e redirecionar se for erro de autenticação real (não validação)
+      const url = error.config?.url || ''
+      const isAuthEndpoint = url.includes('/api/auth/')
+      if (!isAuthEndpoint) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
       }
     }
     return Promise.reject(error)

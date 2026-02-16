@@ -30,7 +30,6 @@ public class Equipa {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore
@@ -38,9 +37,11 @@ public class Equipa {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lider_id")
+    @JsonIgnore
     private Usuario lider;
 
     @OneToMany(mappedBy = "equipa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Presenca> presencas = new ArrayList<>();
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

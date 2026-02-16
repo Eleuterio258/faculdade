@@ -30,7 +30,9 @@ const Login = () => {
     const users = {
       admin: { username: 'admin', password: 'admin123' },
       empreiteiro: { username: 'empreiteiro1', password: 'senha123' },
+      gestor: { username: 'gestor.materiais', password: 'senha123' },
       tecnico: { username: 'tecnico.obra', password: 'senha123' },
+      trabalhador: { username: 'trabalhador1', password: 'senha123' },
     }
     const user = users[type]
     if (user) {
@@ -189,12 +191,30 @@ const Login = () => {
               </button>
               <button
                 type="button"
+                className="btn btn-outline-info btn-sm w-100"
+                disabled={loading}
+                onClick={() => fillTestUser('gestor')}
+              >
+                <i className="fa-solid fa-boxes-stacked me-2"></i>
+                Entrar como Gestor de Materiais
+              </button>
+              <button
+                type="button"
                 className="btn btn-outline-success btn-sm w-100"
                 disabled={loading}
                 onClick={() => fillTestUser('tecnico')}
               >
                 <i className="fa-solid fa-user-gear me-2"></i>
-                Entrar como Técnico
+                Entrar como Técnico de Obra
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-warning btn-sm w-100"
+                disabled={loading}
+                onClick={() => fillTestUser('trabalhador')}
+              >
+                <i className="fa-solid fa-hard-hat me-2"></i>
+                Entrar como Trabalhador
               </button>
             </div>
           </div>

@@ -40,7 +40,6 @@ public class Custo {
     @Column(name = "data", nullable = false)
     private LocalDate data;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore
@@ -51,6 +50,7 @@ public class Custo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
+    @JsonIgnore
     private Usuario responsavel;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

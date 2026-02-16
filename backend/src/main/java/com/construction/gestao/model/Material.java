@@ -43,13 +43,13 @@ public class Material {
     @Column(name = "preco_unitario", precision = 10, scale = 2)
     private BigDecimal precoUnitario;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore
     private Obra obra;
 
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<MovimentoMaterial> movimentos = new ArrayList<>();
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

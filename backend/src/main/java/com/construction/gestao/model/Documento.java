@@ -39,7 +39,6 @@ public class Documento {
     @Column(name = "tamanho_arquivo")
     private Long tamanhoArquivo;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore
@@ -47,6 +46,7 @@ public class Documento {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
+    @JsonIgnore
     private Usuario usuarioUpload;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)

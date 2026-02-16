@@ -33,7 +33,7 @@ const Relatorios = () => {
         api.get(`/api/cronogramas/obra/${selectedObra}`).catch(() => ({ data: [] })),
         api.get(`/api/equipas/obra/${selectedObra}`).catch(() => ({ data: [] })),
         api.get(`/api/ocorrencias/obra/${selectedObra}`).catch(() => ({ data: [] })),
-        api.get(`/api/diarios/obra/${selectedObra}`).catch(() => ({ data: [] }))
+        api.get(`/api/diarios-obra/obra/${selectedObra}`).catch(() => ({ data: [] }))
       ])
 
       const custoTotal = custosRes.data.reduce((sum, c) => sum + (parseFloat(c.valor) || 0), 0)
