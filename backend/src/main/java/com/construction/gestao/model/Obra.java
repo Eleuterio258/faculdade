@@ -62,6 +62,9 @@ public class Obra {
     @Column(name = "percentual_conclusao")
     private Double percentualConclusao = 0.0;
 
+    @Column(name = "imagem_url")
+    private String imagemUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     @JsonIgnoreProperties({"obras", "password"})

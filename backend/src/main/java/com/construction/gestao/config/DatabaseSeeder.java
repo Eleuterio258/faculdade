@@ -60,15 +60,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                 "910000003",
                 Usuario.PerfilUsuario.TECNICO_OBRA
         );
-
-        criarUsuarioSeNaoExistir(
-                "trabalhador1",
-                "trabalhador1@gestaoobras.com",
-                "senha123",
-                "Trabalhador Exemplo",
-                "910000004",
-                Usuario.PerfilUsuario.TRABALHADOR
-        );
     }
 
     private void criarUsuarioSeNaoExistir(

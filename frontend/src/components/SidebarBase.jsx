@@ -27,7 +27,6 @@ const SidebarBase = ({ collapsed, user, logout, groups }) => {
       EMPREITEIRO: 'warning',
       GESTOR_MATERIAIS: 'success',
       TECNICO_OBRA: 'info',
-      TRABALHADOR: 'secondary',
     }
     return colors[role] || 'secondary'
   }
@@ -38,7 +37,6 @@ const SidebarBase = ({ collapsed, user, logout, groups }) => {
       EMPREITEIRO: 'Empreiteiro',
       GESTOR_MATERIAIS: 'Gestor de Materiais',
       TECNICO_OBRA: 'Técnico de Obra',
-      TRABALHADOR: 'Trabalhador',
     }
     return labels[role] || role
   }

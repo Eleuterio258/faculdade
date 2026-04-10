@@ -12,5 +12,6 @@ import java.util.List;
 public interface PresencaRepository extends JpaRepository<Presenca, Long> {
     List<Presenca> findByEquipa(Equipa equipa);
     List<Presenca> findByEquipaAndData(Equipa equipa, LocalDate data);
+    List<Presenca> findByDataBetween(LocalDate inicio, LocalDate fim);
 }
 

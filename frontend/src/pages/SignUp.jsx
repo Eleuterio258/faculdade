@@ -9,7 +9,7 @@ const SignUp = () => {
     password: '',
     nome: '',
     telefone: '',
-    perfil: 'TRABALHADOR'
+    perfil: 'ENGENHEIRO'
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -138,7 +138,6 @@ const SignUp = () => {
                 <option value="ENGENHEIRO">Engenheiro</option>
                 <option value="GESTOR_MATERIAIS">Gestor de Materiais</option>
                 <option value="TECNICO_OBRA">Técnico da Obra</option>
-                <option value="TRABALHADOR">Trabalhador</option>
               </select>
             </div>
           </div>

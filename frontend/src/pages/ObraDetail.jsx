@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import { obraService } from '../services/apiServices'
 
 const ObraDetail = () => {
   const { id } = useParams()
@@ -10,6 +11,8 @@ const ObraDetail = () => {
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({})
+  const [imagemPreview, setImagemPreview] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     fetchObra()
@@ -21,11 +24,46 @@ const ObraDetail = () => {
     try {
       const response = await api.get(`/api/obras/${id}`)
       setObra(response.data)
+      if (response.data.imagemUrl) {
+        setImagemPreview(response.data.imagemUrl)
+      }
     } catch (err) {
       console.error('Erro ao carregar obra:', err)
       setError(err.response?.data?.message || 'Erro ao carregar obra. Verifique se a obra existe.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleUploadImagem = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    try {
+      setUploading(true)
+      const response = await obraService.uploadImagem(id, file)
+      setImagemPreview(response.data.imageUrl)
+      setObra(prev => ({ ...prev, imagemUrl: response.data.imageUrl }))
+      alert('Imagem carregada com sucesso!')
+    } catch (error) {
+      console.error('Erro ao carregar imagem:', error)
+      alert('Erro ao carregar imagem')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleEliminarImagem = async () => {
+    if (!window.confirm('Tem certeza que deseja eliminar a imagem?')) return
+
+    try {
+      await obraService.eliminarImagem(id)
+      setImagemPreview(null)
+      setObra(prev => ({ ...prev, imagemUrl: null }))
+      alert('Imagem eliminada com sucesso!')
+    } catch (error) {
+      console.error('Erro ao eliminar imagem:', error)
+      alert('Erro ao eliminar imagem')
     }
   }
 
@@ -197,6 +235,12 @@ const ObraDetail = () => {
           {obra.nome}
         </h1>
         <div>
+          <Link to={`/obras/${id}/relatorio`} className="btn btn-info me-2">
+            <i className="fa-solid fa-chart-bar me-2"></i>Relatório
+          </Link>
+          <Link to={`/obras/${id}/cotacoes`} className="btn btn-success me-2">
+            <i className="fa-solid fa-file-invoice-dollar me-2"></i>Cotações
+          </Link>
           <button className="btn btn-outline-primary me-2" onClick={startEdit}>
             <i className="fa-solid fa-pen me-2"></i>Editar
           </button>
@@ -205,6 +249,89 @@ const ObraDetail = () => {
           </button>
           <Link to="/obras" className="btn btn-outline-secondary">
             <i className="fa-solid fa-arrow-left me-2"></i>Voltar
+          </Link>
+        </div>
+      </div>
+
+      {/* Imagem da Obra */}
+      <div className="card mb-4">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h5 className="card-title mb-0">
+            <i className="fa-solid fa-image me-2"></i>
+            Imagem da Obra
+          </h5>
+          {imagemPreview && (
+            <button 
+              className="btn btn-sm btn-danger"
+              onClick={handleEliminarImagem}
+            >
+              <i className="fa-solid fa-trash me-2"></i>
+              Eliminar Imagem
+            </button>
+          )}
+        </div>
+        <div className="card-body text-center">
+          {imagemPreview ? (
+            <img 
+              src={imagemPreview.startsWith('http') ? imagemPreview : `http://localhost:2025${imagemPreview}`}
+              alt={obra.nome}
+              className="img-fluid rounded"
+              style={{ maxHeight: '400px', objectFit: 'cover' }}
+            />
+          ) : (
+            <div className="text-muted py-5">
+              <i className="fa-solid fa-image fa-3x mb-3"></i>
+              <p>Nenhuma imagem carregada</p>
+            </div>
+          )}
+          <div className="mt-3">
+            <label className="btn btn-primary">
+              <i className="fa-solid fa-upload me-2"></i>
+              {uploading ? 'A carregar...' : (imagemPreview ? 'Trocar Imagem' : 'Carregar Imagem')}
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleUploadImagem}
+                style={{ display: 'none' }}
+                disabled={uploading}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Módulos da Obra */}
+      <div className="row g-3 mb-4">
+        <div className="col-md-3">
+          <Link to={`/obras/${id}/cotacoes`} className="card text-decoration-none h-100 border-primary">
+            <div className="card-body text-center">
+              <i className="fa-solid fa-file-invoice-dollar fa-2x text-primary mb-2"></i>
+              <h6 className="mb-0">Cotações</h6>
+            </div>
+          </Link>
+        </div>
+        <div className="col-md-3">
+          <Link to={`/cronogramas`} className="card text-decoration-none h-100 border-success">
+            <div className="card-body text-center">
+              <i className="fa-solid fa-calendar fa-2x text-success mb-2"></i>
+              <h6 className="mb-0">Cronogramas</h6>
+            </div>
+          </Link>
+        </div>
+        <div className="col-md-3">
+          <Link to={`/materiais`} className="card text-decoration-none h-100 border-warning">
+            <div className="card-body text-center">
+              <i className="fa-solid fa-box fa-2x text-warning mb-2"></i>
+              <h6 className="mb-0">Materiais</h6>
+            </div>
+          </Link>
+        </div>
+        <div className="col-md-3">
+          <Link to={`/custos`} className="card text-decoration-none h-100 border-danger">
+            <div className="card-body text-center">
+              <i className="fa-solid fa-dollar-sign fa-2x text-danger mb-2"></i>
+              <h6 className="mb-0">Custos</h6>
+            </div>
           </Link>
         </div>
       </div>

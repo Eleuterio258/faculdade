@@ -52,6 +52,15 @@ public class Material {
     @JsonIgnore
     private List<MovimentoMaterial> movimentos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Documento> documentos = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fornecedor_id")
+    @JsonIgnore
+    private Fornecedor fornecedor;
+
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 

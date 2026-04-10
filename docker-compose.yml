@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Backend (Spring Boot)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: faculdade-backend
+    environment:
+      # MySQL na mesma rede e258techmozambique
+      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST:-mysql}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:-faculdade}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-faculdade_user}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-faculdade_pass}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SECURITY_ENABLED: "true"
+      SERVER_FORWARD_HEADERS_STRATEGY: FRAMEWORK
+    networks:
+      - e258techmozambique
+    volumes:
+      - ./backend/uploads:/app/uploads
+    labels:
+      - "traefik.enable=true"
+      
+      # Router API
+      - "traefik.http.routers.backend.rule=Host(`api-facul.e258tech.tech`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend.service=backend-svc"
+      - "traefik.http.services.backend-svc.loadbalancer.server.port=8080"
+      
+      # CORS
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,PATCH,OPTIONS"
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolalloworiginlist=https://faculdade.e258tech.tech"
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.backend-cors.headers.addvaryheader=true"
+      - "traefik.http.routers.backend.middlewares=backend-cors"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/obras"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: faculdade-frontend
+    networks:
+      - e258techmozambique
+    labels:
+      - "traefik.enable=true"
+      
+      # Router Frontend
+      - "traefik.http.routers.frontend.rule=Host(`faculdade.e258tech.tech`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frontend.service=frontend-svc"
+      - "traefik.http.services.frontend-svc.loadbalancer.server.port=80"
+      
+      # Compression
+      - "traefik.http.middlewares.frontend-compress.compress=true"
+      - "traefik.http.routers.frontend.middlewares=frontend-compress"
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+
+networks:
+  e258techmozambique:
+    external: true

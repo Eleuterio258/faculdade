@@ -36,6 +36,14 @@ public class ObraService {
     public List<Obra> getObrasByUsuario(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        // Admin (ENGENHEIRO) e EMPREITEIRO veem TODAS as obras
+        if (usuario.getPerfil() == Usuario.PerfilUsuario.ENGENHEIRO || 
+            usuario.getPerfil() == Usuario.PerfilUsuario.EMPREITEIRO) {
+            return obraRepository.findAll();
+        }
+        
+        // Outros perfis veem apenas as suas obras
         return obraRepository.findByUsuario(usuario);
     }
 

@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface OcorrenciaRepository extends JpaRepository<Ocorrencia, Long> {
     List<Ocorrencia> findByObraOrderByDataDesc(Obra obra);
+    List<Ocorrencia> findByObra(Obra obra);
 }

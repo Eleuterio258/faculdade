@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import { ocorrenciaService } from '../services/apiServices'
 
 const Ocorrencias = () => {
   const [ocorrencias, setOcorrencias] = useState([])
@@ -7,13 +8,16 @@ const Ocorrencias = () => {
   const [selectedObra, setSelectedObra] = useState('')
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
     titulo: '', descricao: '', data: '', tipo: 'INCIDENTE',
     gravidade: 'MEDIA', status: 'ABERTA', resolucao: ''
   })
+  const [filtros, setFiltros] = useState({ tipo: '', gravidade: '', status: '' })
+  const [estatisticas, setEstatisticas] = useState({})
 
   useEffect(() => { fetchObras() }, [])
-  useEffect(() => { if (selectedObra) fetchOcorrencias() }, [selectedObra])
+  useEffect(() => { if (selectedObra) { fetchOcorrencias(); fetchEstatisticas() } }, [selectedObra, filtros])
 
   const fetchObras = async () => {
     try {
@@ -29,24 +33,53 @@ const Ocorrencias = () => {
 
   const fetchOcorrencias = async () => {
     try {
-      const response = await api.get(`/api/ocorrencias/obra/${selectedObra}`)
+      const response = await ocorrenciaService.filtrarOcorrencias(selectedObra, filtros)
       setOcorrencias(response.data)
     } catch (error) {
       console.error('Erro ao carregar ocorrências:', error)
     }
   }
 
+  const fetchEstatisticas = async () => {
+    try {
+      const response = await ocorrenciaService.estatisticasOcorrencias(selectedObra)
+      setEstatisticas(response.data)
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await api.post(`/api/ocorrencias/obra/${selectedObra}`, formData)
+      if (editingId) {
+        await api.put(`/api/ocorrencias/${editingId}`, formData)
+        setEditingId(null)
+      } else {
+        await api.post(`/api/ocorrencias/obra/${selectedObra}`, formData)
+      }
       setShowModal(false)
       setFormData({ titulo: '', descricao: '', data: '', tipo: 'INCIDENTE', gravidade: 'MEDIA', status: 'ABERTA', resolucao: '' })
       fetchOcorrencias()
+      fetchEstatisticas()
     } catch (error) {
-      console.error('Erro ao criar ocorrência:', error)
-      alert('Erro ao criar ocorrência.')
+      console.error('Erro ao salvar ocorrência:', error)
+      alert('Erro ao salvar ocorrência.')
     }
+  }
+
+  const handleEdit = (ocorrencia) => {
+    setFormData({
+      titulo: ocorrencia.titulo || '',
+      descricao: ocorrencia.descricao || '',
+      data: ocorrencia.data || '',
+      tipo: ocorrencia.tipo || 'INCIDENTE',
+      gravidade: ocorrencia.gravidade || 'MEDIA',
+      status: ocorrencia.status || 'ABERTA',
+      resolucao: ocorrencia.resolucao || ''
+    })
+    setEditingId(ocorrencia.id)
+    setShowModal(true)
   }
 
   const handleDelete = async (id) => {
@@ -54,10 +87,17 @@ const Ocorrencias = () => {
       try {
         await api.delete(`/api/ocorrencias/${id}`)
         fetchOcorrencias()
+        fetchEstatisticas()
       } catch (error) {
         console.error('Erro ao excluir ocorrência:', error)
       }
     }
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setEditingId(null)
+    setFormData({ titulo: '', descricao: '', data: '', tipo: 'INCIDENTE', gravidade: 'MEDIA', status: 'ABERTA', resolucao: '' })
   }
 
   const tipoBadge = (tipo) => {
@@ -98,14 +138,133 @@ const Ocorrencias = () => {
         )}
       </div>
 
+      <div className="row g-4 mb-4">
+        <div className="col-md-8">
+          <div className="card">
+            <div className="card-body">
+              <label className="form-label fw-medium">Selecionar Obra</label>
+              <select value={selectedObra} onChange={(e) => setSelectedObra(e.target.value)} className="form-select">
+                {obras.map((obra) => (
+                  <option key={obra.id} value={obra.id}>{obra.nome}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="card bg-light h-100">
+            <div className="card-body d-flex align-items-center">
+              <div className="flex-grow-1">
+                <div className="text-muted small">Total de Ocorrências</div>
+                <div className="h3 mb-0 fw-bold">{estatisticas.total || 0}</div>
+              </div>
+              <i className="fa-solid fa-exclamation-triangle fa-2x text-muted"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Estatísticas */}
+      {estatisticas.total > 0 && (
+        <div className="row g-3 mb-4">
+          <div className="col-md-3">
+            <div className="card border-danger">
+              <div className="card-body text-center">
+                <div className="text-muted small">Abertas</div>
+                <div className="h4 text-danger mb-0">{estatisticas.abertas || 0}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card border-warning">
+              <div className="card-body text-center">
+                <div className="text-muted small">Em Análise</div>
+                <div className="h4 text-warning mb-0">{estatisticas.emAnalise || 0}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card border-success">
+              <div className="card-body text-center">
+                <div className="text-muted small">Resolvidas</div>
+                <div className="h4 text-success mb-0">{estatisticas.resolvidas || 0}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3">
+            <div className="card border-dark">
+              <div className="card-body text-center">
+                <div className="text-muted small">Críticas</div>
+                <div className="h4 text-dark mb-0">{estatisticas.criticas || 0}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filtros */}
       <div className="card mb-4">
+        <div className="card-header">
+          <h5 className="card-title mb-0">
+            <i className="fa-solid fa-filter me-2"></i>
+            Filtros
+          </h5>
+        </div>
         <div className="card-body">
-          <label className="form-label fw-medium">Selecionar Obra</label>
-          <select value={selectedObra} onChange={(e) => setSelectedObra(e.target.value)} className="form-select">
-            {obras.map((obra) => (
-              <option key={obra.id} value={obra.id}>{obra.nome}</option>
-            ))}
-          </select>
+          <div className="row g-3">
+            <div className="col-md-3">
+              <label className="form-label">Tipo</label>
+              <select 
+                className="form-select" 
+                value={filtros.tipo}
+                onChange={(e) => setFiltros(prev => ({ ...prev, tipo: e.target.value }))}
+              >
+                <option value="">Todos</option>
+                <option value="INCIDENTE">Incidente</option>
+                <option value="ACIDENTE">Acidente</option>
+                <option value="ATRASO">Atraso</option>
+                <option value="DEFEITO">Defeito</option>
+                <option value="RECLAMACAO">Reclamação</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Gravidade</label>
+              <select 
+                className="form-select" 
+                value={filtros.gravidade}
+                onChange={(e) => setFiltros(prev => ({ ...prev, gravidade: e.target.value }))}
+              >
+                <option value="">Todas</option>
+                <option value="BAIXA">Baixa</option>
+                <option value="MEDIA">Média</option>
+                <option value="ALTA">Alta</option>
+                <option value="CRITICA">Crítica</option>
+              </select>
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Status</label>
+              <select 
+                className="form-select" 
+                value={filtros.status}
+                onChange={(e) => setFiltros(prev => ({ ...prev, status: e.target.value }))}
+              >
+                <option value="">Todos</option>
+                <option value="ABERTA">Aberta</option>
+                <option value="EM_ANALISE">Em Análise</option>
+                <option value="RESOLVIDA">Resolvida</option>
+                <option value="FECHADA">Fechada</option>
+              </select>
+            </div>
+            <div className="col-md-3 d-flex align-items-end">
+              <button 
+                className="btn btn-outline-secondary w-100"
+                onClick={() => setFiltros({ tipo: '', gravidade: '', status: '' })}
+              >
+                <i className="fa-solid fa-times me-2"></i>Limpar Filtros
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -113,6 +272,7 @@ const Ocorrencias = () => {
         <div className="card-header">
           <h2 className="card-title mb-0">
             <i className="fa-solid fa-list me-2"></i>Ocorrências da Obra
+            <span className="badge bg-primary ms-2">{ocorrencias.length}</span>
           </h2>
         </div>
         <div className="card-body">
@@ -133,7 +293,7 @@ const Ocorrencias = () => {
                 </thead>
                 <tbody>
                   {ocorrencias.map((o) => (
-                    <tr key={o.id} className={o.gravidade === 'CRITICA' ? 'table-danger' : o.gravidade === 'ALTA' ? 'table-warning' : ''}>
+                    <tr key={o.id} className={o.gravidade === 'CRITICA' ? 'table danger' : o.gravidade === 'ALTA' ? 'table warning' : ''}>
                       <td className="text-muted small">{o.data}</td>
                       <td>
                         <div className="fw-medium">{o.titulo}</div>
@@ -143,6 +303,9 @@ const Ocorrencias = () => {
                       <td>{gravidadeBadge(o.gravidade)}</td>
                       <td>{statusBadge(o.status)}</td>
                       <td className="text-end">
+                        <button onClick={() => handleEdit(o)} className="btn btn-sm btn-outline-primary me-1">
+                          <i className="fa-solid fa-edit"></i>
+                        </button>
                         <button onClick={() => handleDelete(o.id)} className="btn btn-sm btn-outline-danger">
                           <i className="fa-solid fa-trash"></i>
                         </button>
@@ -157,12 +320,15 @@ const Ocorrencias = () => {
       </div>
 
       {showModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowModal(false)}>
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={handleCloseModal}>
           <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title"><i className="fa-solid fa-plus me-2"></i>Nova Ocorrência</h5>
-                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                <h5 className="modal-title">
+                  <i className="fa-solid fa-plus me-2"></i>
+                  {editingId ? 'Editar Ocorrência' : 'Nova Ocorrência'}
+                </h5>
+                <button type="button" className="btn-close" onClick={handleCloseModal}></button>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
@@ -222,8 +388,11 @@ const Ocorrencias = () => {
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
-                  <button type="submit" className="btn btn-primary"><i className="fa-solid fa-check me-2"></i>Registar</button>
+                  <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancelar</button>
+                  <button type="submit" className="btn btn-primary">
+                    <i className="fa-solid fa-check me-2"></i>
+                    {editingId ? 'Atualizar' : 'Registar'}
+                  </button>
                 </div>
               </form>
             </div>

@@ -152,6 +152,51 @@ O frontend estará disponível em `http://localhost:3000`
 
 ---
 
+## 🐳 Execução com Docker
+
+### Pré-requisitos
+
+* Docker e Docker Compose instalados
+
+### Executar com Docker
+
+1. Navegue para a raiz do projeto:
+```bash
+cd faculdade
+```
+
+2. Execute o docker-compose:
+```bash
+docker-compose up --build
+```
+
+3. Aguarde a inicialização completa dos serviços
+
+Os serviços estarão disponíveis em:
+* **Frontend**: `http://localhost:80`
+* **Backend**: `http://localhost:8080`
+* **MySQL**: `localhost:3306`
+
+### Parar os Containers
+
+```bash
+docker-compose down
+```
+
+### Parar e Remover Volumes
+
+```bash
+docker-compose down -v
+```
+
+### Reconstruir Imagens
+
+```bash
+docker-compose up --build --force-recreate
+```
+
+---
+
 ## 📊 Estrutura do Projeto
 
 ```

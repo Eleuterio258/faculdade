@@ -39,10 +39,19 @@ public class Documento {
     @Column(name = "tamanho_arquivo")
     private Long tamanhoArquivo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "categoria")
+    private CategoriaDocumento categoria;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "obra_id", nullable = false)
+    @JoinColumn(name = "obra_id")
     @JsonIgnore
     private Obra obra;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "material_id")
+    @JsonIgnore
+    private Material material;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
@@ -55,6 +64,18 @@ public class Documento {
     @PrePersist
     protected void onCreate() {
         dataCriacao = LocalDateTime.now();
+    }
+
+    public enum CategoriaDocumento {
+        PLANO_OBRA,
+        RELATORIO_TECNICO,
+        DOCUMENTO_FINANCEIRO,
+        FOTO_OBRA,
+        DOCUMENTO_MATERIAL,
+        CERTIFICADO,
+        FATURA,
+        CONTRATO,
+        OUTRO
     }
 }
 

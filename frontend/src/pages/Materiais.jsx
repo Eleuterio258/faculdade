@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import api from '../services/api'
+import { materialService, exportService } from '../services/apiServices'
 
 const Materiais = () => {
   const [materiais, setMateriais] = useState([])
@@ -10,15 +12,17 @@ const Materiais = () => {
   const [showMovModal, setShowMovModal] = useState(false)
   const [selectedMaterial, setSelectedMaterial] = useState(null)
   const [formData, setFormData] = useState({
-    nome: '', descricao: '', unidade: 'unidades', quantidadeEstoque: 0,
+    id: null, nome: '', descricao: '', unidade: 'unidades', quantidadeEstoque: 0,
     quantidadeMinima: 0, precoUnitario: ''
   })
   const [movForm, setMovForm] = useState({
     tipo: 'ENTRADA', quantidade: '', precoUnitario: '', observacoes: ''
   })
+  const [stockCritico, setStockCritico] = useState([])
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => { fetchObras() }, [])
-  useEffect(() => { if (selectedObra) fetchMateriais() }, [selectedObra])
+  useEffect(() => { if (selectedObra) { fetchMateriais(); fetchStockCritico() } }, [selectedObra])
 
   const fetchObras = async () => {
     try {
@@ -41,17 +45,64 @@ const Materiais = () => {
     }
   }
 
+  const fetchStockCritico = async () => {
+    try {
+      const response = await materialService.stockCritico(selectedObra)
+      setStockCritico(response.data || [])
+    } catch (error) {
+      console.error('Erro ao carregar stock crítico:', error)
+    }
+  }
+
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true)
+      const response = await exportService.exportMateriaisExcel(selectedObra)
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `materiais_obra_${selectedObra}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      console.error('Erro ao exportar Excel:', error)
+      alert('Erro ao exportar Excel')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await api.post(`/api/materiais/obra/${selectedObra}`, formData)
+      if (formData.id) {
+        // Update
+        await api.put(`/api/materiais/${formData.id}`, formData)
+      } else {
+        // Create
+        await api.post(`/api/materiais/obra/${selectedObra}`, formData)
+      }
       setShowModal(false)
-      setFormData({ nome: '', descricao: '', unidade: 'unidades', quantidadeEstoque: 0, quantidadeMinima: 0, precoUnitario: '' })
+      setFormData({ id: null, nome: '', descricao: '', unidade: 'unidades', quantidadeEstoque: 0, quantidadeMinima: 0, precoUnitario: '' })
       fetchMateriais()
     } catch (error) {
-      console.error('Erro ao criar material:', error)
-      alert('Erro ao criar material.')
+      console.error('Erro ao salvar material:', error)
+      alert('Erro ao salvar material.')
     }
+  }
+
+  const handleEdit = (material) => {
+    setFormData({
+      id: material.id,
+      nome: material.nome || '',
+      descricao: material.descricao || '',
+      unidade: material.unidade || 'unidades',
+      quantidadeEstoque: material.quantidadeEstoque || 0,
+      quantidadeMinima: material.quantidadeMinima || 0,
+      precoUnitario: material.precoUnitario || ''
+    })
+    setShowModal(true)
   }
 
   const handleDelete = async (id) => {
@@ -106,11 +157,53 @@ const Materiais = () => {
           Materiais
         </h1>
         {selectedObra && (
-          <button onClick={() => setShowModal(true)} className="btn btn-primary">
-            <i className="fa-solid fa-plus me-2"></i>Novo Material
-          </button>
+          <div>
+            <button onClick={handleExportExcel} className="btn btn-success me-2" disabled={exporting}>
+              <i className="fa-solid fa-file-excel me-2"></i>
+              {exporting ? 'A exportar...' : 'Exportar Excel'}
+            </button>
+            <button onClick={() => setShowModal(true)} className="btn btn-primary">
+              <i className="fa-solid fa-plus me-2"></i>Novo Material
+            </button>
+          </div>
         )}
       </div>
+
+      {/* Painel de Stock Crítico */}
+      {stockCritico.length > 0 && (
+        <div className="card mb-4 border-danger">
+          <div className="card-header bg-danger text-white">
+            <h5 className="card-title mb-0">
+              <i className="fa-solid fa-exclamation-triangle me-2"></i>
+              Alerta de Stock Crítico - {stockCritico.length} material(is)
+            </h5>
+          </div>
+          <div className="card-body">
+            <div className="row">
+              {stockCritico.map(material => (
+                <div key={material.id} className="col-md-4 mb-3">
+                  <div className="card border-warning">
+                    <div className="card-body p-3">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div className="flex-grow-1">
+                          <h6 className="mb-1">{material.nome}</h6>
+                          <p className="mb-1 small text-muted">
+                            Stock: <strong className="text-danger">{material.quantidadeEstoque}</strong> {material.unidade}
+                          </p>
+                          <p className="mb-0 small">
+                            Mínimo: {material.quantidadeMinima} {material.unidade}
+                          </p>
+                        </div>
+                        <i className="fa-solid fa-box-open fa-2x text-warning"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="card mb-4">
         <div className="card-body">
@@ -165,7 +258,10 @@ const Materiais = () => {
                           <button onClick={() => openMovModal(m)} className="btn btn-sm btn-outline-success me-1" title="Movimento de stock">
                             <i className="fa-solid fa-exchange-alt"></i>
                           </button>
-                          <button onClick={() => handleDelete(m.id)} className="btn btn-sm btn-outline-danger">
+                          <button onClick={() => handleEdit(m)} className="btn btn-sm btn-outline-primary me-1" title="Editar">
+                            <i className="fa-solid fa-pen"></i>
+                          </button>
+                          <button onClick={() => handleDelete(m.id)} className="btn btn-sm btn-outline-danger" title="Excluir">
                             <i className="fa-solid fa-trash"></i>
                           </button>
                         </td>
@@ -184,7 +280,7 @@ const Materiais = () => {
           <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title"><i className="fa-solid fa-plus me-2"></i>Novo Material</h5>
+                <h5 className="modal-title"><i className="fa-solid fa-plus me-2"></i>{formData.id ? 'Editar Material' : 'Novo Material'}</h5>
                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <form onSubmit={handleSubmit}>

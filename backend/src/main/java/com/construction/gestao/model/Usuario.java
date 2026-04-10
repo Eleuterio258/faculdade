@@ -79,8 +79,7 @@ public class Usuario {
         EMPREITEIRO,
         ENGENHEIRO,
         GESTOR_MATERIAIS,
-        TECNICO_OBRA,
-        TRABALHADOR
+        TECNICO_OBRA
     }
 }
 

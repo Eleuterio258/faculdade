@@ -7,7 +7,7 @@ const Equipas = () => {
   const [selectedObra, setSelectedObra] = useState('')
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [formData, setFormData] = useState({ nome: '', descricao: '' })
+  const [formData, setFormData] = useState({ id: null, nome: '', descricao: '' })
 
   useEffect(() => {
     fetchObras()

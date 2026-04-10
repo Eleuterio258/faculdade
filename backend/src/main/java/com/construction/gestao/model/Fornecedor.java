@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "fornecedores")
@@ -41,6 +43,10 @@ public class Fornecedor {
     @JoinColumn(name = "obra_id", nullable = false)
     @JsonIgnore
     private Obra obra;
+
+    @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Cotacao> cotacoes = new ArrayList<>();
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
