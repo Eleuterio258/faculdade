@@ -67,7 +67,7 @@ public class Obra {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonIgnoreProperties({"obras", "password"})
+    @JsonIgnoreProperties({"obras", "password", "hibernateLazyInitializer", "handler"})
     private Usuario usuario;
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -9,41 +9,48 @@ services:
     container_name: faculdade-backend
     environment:
       # MySQL na mesma rede e258techmozambique
-      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST:-mysql}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:-faculdade}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST:-db}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:-faculdade}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-faculdade_user}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-faculdade_pass}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SECURITY_ENABLED: "true"
       SERVER_FORWARD_HEADERS_STRATEGY: FRAMEWORK
+      APP_CORS_ALLOWED_ORIGINS: "https://faculdade.e258tech.tech,http://localhost:3000,http://localhost:5173"
+      S3_ENDPOINT: "https://minio.u-tech.co.mz"
+      S3_REGION: "us-east-1"
+      S3_BUCKET: "cbe-vagas"
+      S3_PUBLIC_URL: "https://minio.u-tech.co.mz"
+      S3_ACCESS_KEY: "2Q5RUtRKyfLUbzbg9XFd"
+      S3_SECRET_KEY: "gQY3RZUWALihYn72PZzRl8Bbfjc7AmNYcR5wGtpk"
+    ports:
+      - "2055:2055"
     networks:
       - e258techmozambique
-    volumes:
-      - ./backend/uploads:/app/uploads
     labels:
       - "traefik.enable=true"
       
       # Router API
-      - "traefik.http.routers.backend.rule=Host(`api-facul.e258tech.tech`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls=true"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.backend.service=backend-svc"
-      - "traefik.http.services.backend-svc.loadbalancer.server.port=2055"
+      - "traefik.http.routers.faculdade-backend.rule=Host(`api-facul.e258tech.tech`)"
+      - "traefik.http.routers.faculdade-backend.entrypoints=websecure"
+      - "traefik.http.routers.faculdade-backend.tls=true"
+      - "traefik.http.routers.faculdade-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.faculdade-backend.service=faculdade-backend-svc"
+      - "traefik.http.services.faculdade-backend-svc.loadbalancer.server.port=2055"
 
       # CORS
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,PATCH,OPTIONS"
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowheaders=*"
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolalloworiginlist=https://faculdade.e258tech.tech"
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolmaxage=100"
-      - "traefik.http.middlewares.backend-cors.headers.addvaryheader=true"
-      - "traefik.http.routers.backend.middlewares=backend-cors"
+      - "traefik.http.middlewares.faculdade-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,PATCH,OPTIONS"
+      - "traefik.http.middlewares.faculdade-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.faculdade-cors.headers.accesscontrolalloworiginlist=https://faculdade.e258tech.tech"
+      - "traefik.http.middlewares.faculdade-cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.faculdade-cors.headers.addvaryheader=true"
+      - "traefik.http.routers.faculdade-backend.middlewares=faculdade-cors"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2055/api/obras"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:2055/api/obras || exit 0"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 90s
+      start_period: 60s
 
   # Frontend
   frontend:
@@ -51,22 +58,24 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: faculdade-frontend
+    ports:
+      - "3080:80"
     networks:
       - e258techmozambique
     labels:
       - "traefik.enable=true"
       
       # Router Frontend
-      - "traefik.http.routers.frontend.rule=Host(`faculdade.e258tech.tech`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frontend.service=frontend-svc"
-      - "traefik.http.services.frontend-svc.loadbalancer.server.port=80"
-      
+      - "traefik.http.routers.faculdade-frontend.rule=Host(`faculdade.e258tech.tech`)"
+      - "traefik.http.routers.faculdade-frontend.entrypoints=websecure"
+      - "traefik.http.routers.faculdade-frontend.tls=true"
+      - "traefik.http.routers.faculdade-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.faculdade-frontend.service=faculdade-frontend-svc"
+      - "traefik.http.services.faculdade-frontend-svc.loadbalancer.server.port=80"
+
       # Compression
-      - "traefik.http.middlewares.frontend-compress.compress=true"
-      - "traefik.http.routers.frontend.middlewares=frontend-compress"
+      - "traefik.http.middlewares.faculdade-compress.compress=true"
+      - "traefik.http.routers.faculdade-frontend.middlewares=faculdade-compress"
     restart: unless-stopped
     depends_on:
       backend:

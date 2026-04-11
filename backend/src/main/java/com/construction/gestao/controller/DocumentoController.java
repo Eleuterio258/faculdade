@@ -3,16 +3,13 @@ package com.construction.gestao.controller;
 import com.construction.gestao.model.Documento;
 import com.construction.gestao.service.DocumentoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -38,13 +35,11 @@ public class DocumentoController {
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> downloadDocumento(@PathVariable Long id) throws IOException {
-        Path filePath = documentoService.getDocumentoPath(id);
-        Resource resource = new UrlResource(filePath.toUri());
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filePath.getFileName() + "\"")
-                .body(resource);
+    public ResponseEntity<Void> downloadDocumento(@PathVariable Long id) {
+        String url = documentoService.getDocumentoUrl(id);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(url))
+                .build();
     }
 
     @DeleteMapping("/{id}")

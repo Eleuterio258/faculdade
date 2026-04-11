@@ -25,8 +25,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // Usuário principal (pode usar como "admin" do sistema)
         criarUsuarioSeNaoExistir(
-                "admin",
-                "admin@gestaoobras.com",
+                "engenheiro",
+                "engenheiro@gestaoobras.com",
                 "admin123",
                 "Administrador do Sistema",
                 "999999999",

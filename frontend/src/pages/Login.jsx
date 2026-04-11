@@ -28,7 +28,7 @@ const Login = () => {
 
   const fillTestUser = (type) => {
     const users = {
-      admin: { username: 'admin', password: 'admin123' },
+      engenheiro: { username: 'engenheiro', password: 'admin123' },
       empreiteiro: { username: 'empreiteiro1', password: 'senha123' },
       gestor: { username: 'gestor.materiais', password: 'senha123' },
       tecnico: { username: 'tecnico.obra', password: 'senha123' },
@@ -174,10 +174,10 @@ const Login = () => {
                 type="button"
                 className="btn btn-outline-primary btn-sm w-100"
                 disabled={loading}
-                onClick={() => fillTestUser('admin')}
+                onClick={() => fillTestUser('engenheiro')}
               >
                 <i className="fa-solid fa-user-shield me-2"></i>
-                Entrar como Admin
+                Entrar como Engenheiro
               </button>
               <button
                 type="button"

@@ -10,23 +10,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class DocumentoService {
-
-    private final String uploadDir = "uploads/documentos";
 
     @Autowired
     private DocumentoRepository documentoRepository;
 
     @Autowired
     private ObraRepository obraRepository;
+
+    @Autowired
+    private S3StorageService storageService;
 
     public List<Documento> getDocumentosByObra(Long obraId) {
         Obra obra = obraRepository.findById(obraId)
@@ -39,21 +35,17 @@ public class DocumentoService {
         Obra obra = obraRepository.findById(obraId)
                 .orElseThrow(() -> new RuntimeException("Obra não encontrada"));
 
-        Path uploadPath = Paths.get(uploadDir, obraId.toString());
-        Files.createDirectories(uploadPath);
-
         String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null && originalFilename.contains(".")
+        String extension = (originalFilename != null && originalFilename.contains("."))
                 ? originalFilename.substring(originalFilename.lastIndexOf("."))
                 : "";
-        String storedFilename = UUID.randomUUID().toString() + extension;
-        Path filePath = uploadPath.resolve(storedFilename);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        String fileUrl = storageService.upload(file, "obras/" + obraId + "/documentos");
 
         Documento documento = new Documento();
         documento.setNome(nome != null && !nome.isBlank() ? nome : originalFilename);
         documento.setDescricao(descricao);
-        documento.setCaminhoArquivo(filePath.toString());
+        documento.setCaminhoArquivo(fileUrl);
         documento.setTipoArquivo(extension.replace(".", ""));
         documento.setTamanhoArquivo(file.getSize());
         documento.setObra(obra);
@@ -62,17 +54,16 @@ public class DocumentoService {
     }
 
     @Transactional
-    public void deleteDocumento(Long id) throws IOException {
+    public void deleteDocumento(Long id) {
         Documento documento = documentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Documento não encontrado"));
-        Path filePath = Paths.get(documento.getCaminhoArquivo());
-        Files.deleteIfExists(filePath);
+        storageService.delete(documento.getCaminhoArquivo());
         documentoRepository.deleteById(id);
     }
 
-    public Path getDocumentoPath(Long id) {
+    public String getDocumentoUrl(Long id) {
         Documento documento = documentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Documento não encontrado"));
-        return Paths.get(documento.getCaminhoArquivo());
+        return documento.getCaminhoArquivo();
     }
 }

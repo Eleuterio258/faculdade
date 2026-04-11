@@ -25,6 +25,7 @@ import AnaliseMercado from './pages/AnaliseMercado'
 import CotacaoDetail from './pages/CotacaoDetail'
 import CotacaoForm from './pages/CotacaoForm'
 import MeuPerfil from './pages/MeuPerfil'
+import CotacoesGeral from './pages/CotacoesGeral'
 import Layout from './components/Layout'
 
 function App() {
@@ -200,6 +201,16 @@ function App() {
               <PrivateRoute>
                 <Layout>
                   <MeuPerfil />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/cotacoes"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <CotacoesGeral />
                 </Layout>
               </PrivateRoute>
             }
